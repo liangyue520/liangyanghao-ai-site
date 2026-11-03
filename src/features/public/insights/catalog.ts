@@ -1,4 +1,5 @@
 import { experienceSeries } from './experience-series';
+import { fullstackSeries } from './fullstack-series';
 
 export type DevelopmentInsight = {
   slug: string;
@@ -8,6 +9,9 @@ export type DevelopmentInsight = {
   publishedAt: string;
   series?: { name: string; order: number };
   introduction?: string[];
+  articleType?: 'scenario';
+  bodyMarkdown?: string;
+  loadMarkdown?: () => Promise<string>;
   sections: {
     heading: string;
     paragraphs: string[];
@@ -18,6 +22,7 @@ export type DevelopmentInsight = {
 
 // Add only the author's reviewed, public articles here.
 export const developmentInsights: DevelopmentInsight[] = [
+  ...fullstackSeries,
   {
     slug: 'from-ai-development-to-project-delivery',
     title: '从使用 AI 开发，到关注真正的项目交付',

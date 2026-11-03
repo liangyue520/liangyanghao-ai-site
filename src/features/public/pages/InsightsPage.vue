@@ -1,10 +1,14 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import LearningStage from '../components/LearningStage.vue';
 import { developmentInsights } from '../insights/catalog';
 import { useScrollReveal } from '../../../lib/useScrollReveal';
 
 const page = ref<HTMLElement>();
+const selectedSeries = ref<'all' | 'practice' | 'fullstack'>('all');
+const fullstackCount = developmentInsights.filter(insight => insight.articleType === 'scenario').length;
+const practiceCount = developmentInsights.length - fullstackCount;
+const visibleInsights = computed(() => developmentInsights.filter(insight => selectedSeries.value === 'all' || (selectedSeries.value === 'fullstack' ? insight.articleType === 'scenario' : insight.articleType !== 'scenario')));
 useScrollReveal(page);
 </script>
 
@@ -15,16 +19,22 @@ useScrollReveal(page);
         <header class="insights-intro" data-reveal-content>
           <p class="eyebrow">在实践中理解 AI</p>
           <h1>AI 开发经验分享</h1>
-          <p class="intro-copy">这里将逐步整理我的 AI 开发实践、个人见解与项目复盘。<br>从一个具体的问题出发，记录思路、尝试，以及做完之后的思考。</p>
+          <p class="intro-copy">项目实践、个人思考，以及用情景展开的全栈 AI 开发讨论。<br>从一个具体的问题出发，记录思路、尝试，以及做完之后的思考。</p>
           <p class="published-count">已发布 <strong>{{ developmentInsights.length }}</strong> 篇分享</p>
         </header>
       </div>
 
-      <section v-if="developmentInsights.length" class="insights-list" aria-label="已发布的开发经验分享">
-        <div v-for="(insight, index) in developmentInsights" :key="insight.slug" class="reveal-anchor insight-reveal" data-reveal :style="{ '--reveal-delay': `${index % 2 * 90}ms` }">
+      <div class="insight-filters" role="group" aria-label="按分享系列筛选">
+        <button type="button" :aria-pressed="selectedSeries === 'all'" @click="selectedSeries = 'all'">全部分享 <span>{{ developmentInsights.length }}</span></button>
+        <button type="button" :aria-pressed="selectedSeries === 'fullstack'" @click="selectedSeries = 'fullstack'">全栈 AI 开发手记 <span>{{ fullstackCount }}</span></button>
+        <button type="button" :aria-pressed="selectedSeries === 'practice'" @click="selectedSeries = 'practice'">项目实践与复盘 <span>{{ practiceCount }}</span></button>
+      </div>
+
+      <section v-if="visibleInsights.length" class="insights-list" aria-label="已发布的开发经验分享">
+        <div v-for="(insight, index) in visibleInsights" :key="insight.slug" class="reveal-anchor insight-reveal" data-reveal :style="{ '--reveal-delay': `${index % 2 * 90}ms` }">
           <RouterLink :to="'/insights/' + insight.slug" class="insight-card" data-reveal-content>
             <p v-if="insight.series" class="insight-series">{{ insight.series.name }} · {{ String(insight.series.order).padStart(2, '0') }}</p>
-            <div class="insight-meta"><span>{{ insight.category }}</span><time :datetime="insight.publishedAt">{{ insight.publishedAt }}</time></div>
+            <div class="insight-meta"><span>{{ insight.category }}<span v-if="insight.articleType === 'scenario'" class="insight-kind"> · 情景讨论</span></span><time :datetime="insight.publishedAt">{{ insight.publishedAt }}</time></div>
             <h2>{{ insight.title }}</h2>
             <p>{{ insight.summary }}</p>
             <span class="read-link">阅读分享 <span aria-hidden="true">↗</span></span>
@@ -54,6 +64,12 @@ useScrollReveal(page);
 .intro-copy{max-width:760px;margin:0;color:var(--course-copy);font-size:15px;line-height:2}
 .published-count{margin:23px 0 0;color:var(--course-muted);font-size:12px}
 .published-count strong{color:var(--course-link);font-weight:500}
+.insight-filters{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 28px}
+.insight-filters button{display:inline-flex;gap:12px;align-items:center;padding:10px 15px;border:1px solid var(--course-line);border-radius:999px;background:var(--course-panel);color:var(--course-copy);font:inherit;font-size:12px;cursor:pointer}
+.insight-filters button[aria-pressed="true"]{background:var(--course-accent);border-color:var(--course-accent);color:#183e35}
+.insight-filters button:focus-visible{outline:2px solid var(--course-link);outline-offset:3px}
+.insight-filters button span{opacity:.8;font-variant-numeric:tabular-nums}
+.insight-kind{font-size:10px;color:var(--course-muted)}
 .insights-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
 .insight-reveal{display:grid}
 .insight-card{display:flex;flex-direction:column;min-width:0;height:100%;padding:28px;border:1px solid var(--course-line);border-radius:18px;background:var(--course-panel);color:var(--course-text);box-shadow:inset 0 1px 0 rgba(235,248,231,.035)}

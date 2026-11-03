@@ -11,7 +11,7 @@
 - 首页：玻璃质感卡片、绿色背景、动态线条、按钮与页脚流光。
 - 课程目录与课程正文：48 节 AI 入门课程、阅读控制和课程导航。
 - 关于我：个人经历、项目介绍、社交平台入口与 AI 技能下载。
-- AI 开发经验分享：文章列表与独立详情页。
+- AI 开发经验分享：44 篇文章、系列筛选与独立详情页；包括 32 篇「全栈 AI 开发手记」和 12 篇项目实践与复盘。手记中的虚构案例在正文明确标注为情景化讨论。
 - 后台：登录、内容管理、导出和访问统计；保留原工程的服务端能力。部分早期个人内容栏目的公共入口当前隐藏。
 - 页脚：网站运行时间、公开访问汇总及相关链接。
 
@@ -38,6 +38,8 @@
 ### AI 开发经验分享
 
 ![AI 开发经验分享：文章列表](docs/screenshots/04-insights.jpg)
+
+![全栈 AI 开发手记：正文与情景说明](docs/screenshots/07-fullstack-insight.jpg)
 
 ### 页脚
 
@@ -134,7 +136,7 @@ tests/      集成测试与合成测试样本生成器
 docs/       通用部署说明
 ```
 
-课程入口在 `src/features/public/courses/`，经验文章在 `src/features/public/insights/`；个人资料在 `src/features/public/profile-resume-data.ts`。公开资源和社交链接沿用当前网站内容。
+课程入口在 `src/features/public/courses/`，经验文章在 `src/features/public/insights/`；新系列的 Markdown 正文在 `src/features/public/insights/articles/fullstack-series/`，目录信息在 `fullstack-series.ts`，正文按需加载；个人资料在 `src/features/public/profile-resume-data.ts`。公开资源和社交链接沿用当前网站内容。
 
 ## GitHub 仓库与后续更新
 

@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import LearningStage from '../components/LearningStage.vue';
 import InsightInlineText from '../components/InsightInlineText.vue';
+import InsightMarkdown from '../components/InsightMarkdown.vue';
 import { developmentInsights, findDevelopmentInsight } from '../insights/catalog';
 import { useScrollReveal } from '../../../lib/useScrollReveal';
 
@@ -12,6 +13,25 @@ const articleIndex = computed(() => developmentInsights.findIndex(article => art
 const previousInsight = computed(() => articleIndex.value > 0 ? developmentInsights[articleIndex.value - 1] : undefined);
 const nextInsight = computed(() => articleIndex.value >= 0 ? developmentInsights[articleIndex.value + 1] : undefined);
 const page = ref<HTMLElement>();
+const bodyMarkdown = ref('');
+const loadingMarkdown = ref(false);
+const markdownError = ref(false);
+const retryMarkdown = ref(0);
+watch([insight, retryMarkdown], ([article], _previous, onCleanup) => {
+  let active = true;
+  onCleanup(() => { active = false; });
+  bodyMarkdown.value = article?.bodyMarkdown ?? '';
+  loadingMarkdown.value = !!article?.loadMarkdown;
+  markdownError.value = false;
+  if (!article?.loadMarkdown) return;
+  void article.loadMarkdown().then(markdown => {
+    if (active) bodyMarkdown.value = markdown;
+  }).catch(() => {
+    if (active) markdownError.value = true;
+  }).finally(() => {
+    if (active) loadingMarkdown.value = false;
+  });
+}, { immediate: true });
 useScrollReveal(page);
 </script>
 
@@ -28,6 +48,13 @@ useScrollReveal(page);
             <p v-if="!insight.introduction?.length" class="article-summary">{{ insight.summary }}</p>
           </header>
         </div>
+        <aside v-if="insight.articleType === 'scenario'" class="article-context" aria-label="文章背景说明">
+          <strong>情景化讨论</strong>
+          <p>文中的人物、对话、项目和演示数字是为说明问题设置的情景，不是作者亲历项目记录。工具能力请结合文中资料与实际版本理解。</p>
+        </aside>
+        <p v-if="loadingMarkdown" class="article-loading" role="status">正在载入正文…</p>
+        <div v-else-if="markdownError" class="article-loading" role="alert"><p>正文暂时未能加载，请重试。</p><button type="button" @click="retryMarkdown++">重新加载</button></div>
+        <InsightMarkdown v-else-if="bodyMarkdown" :markdown="bodyMarkdown" />
         <div v-if="insight.introduction?.length" class="article-introduction"><p v-for="(paragraph, index) in insight.introduction" :key="index"><InsightInlineText :text="paragraph" /></p></div>
         <section v-for="(section, index) in insight.sections" :key="index + '-' + section.heading" class="article-section">
           <h2>{{ section.heading }}</h2>
@@ -68,6 +95,11 @@ useScrollReveal(page);
 .article-meta time{white-space:nowrap}
 .article-header h1{margin:17px 0 18px;font-size:clamp(31px,4vw,43px);line-height:1.5;letter-spacing:-.035em;overflow-wrap:anywhere;color:var(--course-text)}
 .article-summary{margin:0;color:var(--course-copy);font-size:17px;line-height:1.95;overflow-wrap:anywhere}
+.article-loading{margin:28px 0;color:var(--course-muted);font-size:14px;line-height:1.9}
+.article-loading button{padding:8px 16px;border:1px solid var(--course-line);border-radius:999px;background:var(--course-panel);color:var(--course-link);cursor:pointer}
+.article-context{margin:0 0 30px;padding:17px 20px;border:1px solid var(--course-line);border-left:3px solid var(--course-link);border-radius:12px;background:var(--course-panel);color:var(--course-muted)}
+.article-context strong{color:var(--course-link);font-size:12px;font-weight:600}
+.article-context p{margin:8px 0 0;font-size:13px;line-height:1.9}
 .article-section{margin:34px 0;scroll-margin-top:32px}
 .article-section h2{margin:0 0 18px;color:var(--course-text);font-size:24px;line-height:1.7;font-weight:600;overflow-wrap:anywhere}
 .article-section p,.article-introduction p{margin:15px 0;color:var(--course-copy);font-size:16px;line-height:2.15;overflow-wrap:anywhere;white-space:pre-line}
