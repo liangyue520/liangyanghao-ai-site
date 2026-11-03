@@ -15,6 +15,34 @@
 - 后台：登录、内容管理、导出和访问统计；保留原工程的服务端能力。部分早期个人内容栏目的公共入口当前隐藏。
 - 页脚：网站运行时间、公开访问汇总及相关链接。
 
+## 界面预览
+
+以下为本仓库源码在本地构建后的实际页面截图。静态截图展示布局与配色，背景、线条和流光动画可在运行网站后体验。截图与全部界面图片均随仓库保存，无需访问外部图床。
+
+### 首页
+
+![首页：玻璃质感卡片与 AI 入门场景](docs/screenshots/01-home.jpg)
+
+### 课程目录
+
+![课程目录：课程与学习路线](docs/screenshots/02-learning.jpg)
+
+### 课程正文
+
+![课程正文：阅读内容、示意图与章节导航](docs/screenshots/06-course.jpg)
+
+### 关于我
+
+![关于我：个人介绍与项目经历](docs/screenshots/03-about.jpg)
+
+### AI 开发经验分享
+
+![AI 开发经验分享：文章列表](docs/screenshots/04-insights.jpg)
+
+### 页脚
+
+![页脚：相关入口与网站运行信息](docs/screenshots/05-footer.jpg)
+
 ## 技术栈
 
 Vue 3、Vue Router、TypeScript、Vite；Node.js、Fastify、SQLite（Node 内置 `node:sqlite`）。依赖版本由 `package-lock.json` 固定。
@@ -108,18 +136,19 @@ docs/       通用部署说明
 
 课程入口在 `src/features/public/courses/`，经验文章在 `src/features/public/insights/`；个人资料在 `src/features/public/profile-resume-data.ts`。公开资源和社交链接沿用当前网站内容。
 
-## 上传到 GitHub
+## GitHub 仓库与后续更新
 
-此源码目录已建立全新的本地 Git 仓库（`main` 分支），不带原工程历史；源码 ZIP 不包含 `.git/`。本次整理尚未创建远程仓库或执行推送。
+源码仓库：[liangyue520/liangyanghao-ai-site](https://github.com/liangyue520/liangyanghao-ai-site)。仓库为私有，只有所有者及已获授权的协作者能够访问源码和截图。
 
-安装并登录 GitHub CLI 后，在本地 Git 仓库根目录可先以私有仓库上传：
+已获授权的协作者可使用 GitHub CLI 克隆：
 
 ```sh
-gh auth status
-gh repo create liangyanghao-ai-site --private --source=. --remote=origin --push
+gh repo clone liangyue520/liangyanghao-ai-site
+cd liangyanghao-ai-site
+npm ci
 ```
 
-上述命令会真正创建并上传仓库。若决定公开源码，创建时将 `--private` 改为 `--public`。从 ZIP 开始时，需先运行 `git init -b main`、`git add .` 和 `git commit`。后续更新使用常规 `git add`、`git commit`、`git push`。
+后续更新使用常规 `git add`、`git commit`、`git push`。新增图片请一并提交 `src/`、`public/` 或 `docs/screenshots/` 内的实际文件，README 使用仓库内的相对路径引用图片。源码 ZIP 不包含 `.git/`。
 
 ## 部署与使用范围
 
