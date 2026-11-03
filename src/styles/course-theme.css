@@ -1,0 +1,46 @@
+/* One palette from the glass hero through the catalogue and reading pages. */
+.public-course-shell{
+  --course-bg:#173c37;
+  --course-bg-deep:#14332f;
+  --course-text:#f3f7ef;
+  --course-copy:#e1ede6;
+  --course-muted:#ccdfd5;
+  --course-faint:#c8ddd2;
+  --course-accent:#d9e9b2;
+  --course-link:#c0e4c5;
+  --course-line:rgba(218,239,222,.18);
+  --course-panel:rgba(195,227,209,.055);
+  --course-panel-strong:rgba(181,218,195,.1);
+  --course-button-ink:#183b30;
+  --bg:var(--course-bg);
+  --paper:var(--course-panel);
+  --ink:var(--course-text);
+  --muted:var(--course-muted);
+  --accent:var(--course-link);
+  --accent-soft:rgba(192,228,197,.2);
+  --line:var(--course-line);
+  position:relative;
+  isolation:isolate;
+  display:flow-root;
+  min-height:100svh;
+  color:var(--course-text);
+  background:linear-gradient(180deg,var(--course-bg) 0,var(--course-bg) 1100px,var(--course-bg-deep) 100%);
+  color-scheme:dark;
+}
+.public-course-shell::before{
+  content:'';
+  position:absolute;
+  z-index:-1;
+  inset:800px 0 0;
+  pointer-events:none;
+  background:radial-gradient(ellipse at 4% 30%,rgba(119,172,139,.075),transparent 55%),radial-gradient(ellipse at 95% 80%,rgba(211,208,142,.04),transparent 48%);
+}
+.public-course-shell.homepage-shell{background:var(--course-bg)}
+.public-course-shell.homepage-shell::before{display:none}
+body:has(.public-course-shell){background:#173c37}
+.public-course-shell :is(a,button,input,summary):focus-visible{outline:2px solid var(--course-accent);outline-offset:4px}
+.public-course-shell ::selection{background:#c0e4c5;color:#15392d}
+@media print{
+  .public-course-shell{--course-bg:#fff;--course-bg-deep:#fff;--course-text:#17352b;--course-copy:#263f35;--course-muted:#4b6659;--course-faint:#4b6659;--course-accent:#315d43;--course-link:#315d43;--course-line:#b3c3b7;--course-panel:transparent;--course-panel-strong:transparent;background:white;color-scheme:light}
+  .public-course-shell::before{display:none}
+}

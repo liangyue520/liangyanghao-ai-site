@@ -1,0 +1,24 @@
+{
+  "codex.png": {
+    "product": "Codex",
+    "sourcePage": "https://marketplace.visualstudio.com/items?itemName=openai.chatgpt",
+    "assetUrl": "https://openai.gallerycdn.vsassets.io/extensions/openai/chatgpt/26.51021.22027/1792788319200/Microsoft.VisualStudio.Services.Icons.Default",
+    "note": "Original icon of the official OpenAI Codex extension."
+  },
+  "deepseek.svg": {
+    "product": "DeepSeek",
+    "sourcePage": "https://www.deepseek.com/",
+    "note": "Whale symbol extracted from the official header SVG; original path and clipping geometry preserved."
+  },
+  "doubao.png": {
+    "product": "豆包",
+    "sourcePage": "https://www.doubao.com/chat/",
+    "assetUrl": "https://lf-flow-web-cdn.doubao.com/obj/flow-doubao/favicon/new-doubao/192x192.png"
+  },
+  "zhipu.png": {
+    "product": "智谱清言",
+    "sourcePage": "https://chatglm.cn/",
+    "assetUrl": "https://chatglm.cn/favicon.ico",
+    "note": "Official favicon converted to PNG without changing its artwork."
+  }
+}

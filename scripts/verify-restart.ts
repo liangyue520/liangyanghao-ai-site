@@ -1,0 +1,19 @@
+import fs from 'node:fs';import path from 'node:path';import {spawn,type ChildProcess} from 'node:child_process';import {randomUUID} from 'node:crypto';import assert from 'node:assert/strict';import {once} from 'node:events';
+import {readConfig} from '../server/core/config';import {createContext} from '../server/core/context';import {createAuth} from '../server/auth/service';import {unknownDate} from '../shared/schemas';
+const env='test-restart-'+randomUUID(),config=readConfig(env);const ctx=createContext(config),username='synthetic-restart',password='Synthetic-'+randomUUID(),id=randomUUID(),now=new Date().toISOString();
+await createAuth(ctx.db,config).initialize(username,password);const record={id,kind:'diary',title:'进程重启合成样本',summary:'',bodyText:null,transcription:null,reflection:null,category:null,recordDate:unknownDate(),featured:false,resource:null,game:null,visibility:'private',media:[],status:'draft',revision:1,isDemo:true,createdAt:now,updatedAt:now,publishedAt:null,withdrawnAt:null,deletedAt:null};
+ctx.db.run('INSERT INTO contents VALUES(?,?,?,?,?,?,?,?,?)',id,'diary','draft','private',1,now,now,null,JSON.stringify(record));ctx.db.close();
+const url=`http://127.0.0.1:${config.apiPort}`;let child:ChildProcess|undefined;let errors='';const checks:Record<string,unknown>={};
+async function start(){child=spawn(process.execPath,['--import','tsx','server/main.ts','--env',env],{cwd:config.root,windowsHide:true,stdio:['ignore','pipe','pipe']});child.stderr?.on('data',b=>{errors+=b.toString();});for(let n=0;n<100;n++){if(child.exitCode!==null)throw Error('Server exited: '+errors);try{const r=await fetch(url+'/api/v1/health',{signal:AbortSignal.timeout(1000)});if(r.ok)return;}catch{}await new Promise(r=>setTimeout(r,100));}throw Error('Server startup timeout');}
+async function stop(){if(child&&child.exitCode===null){const exited=once(child,'exit');child.kill('SIGTERM');await exited;}}
+try{
+ await start();const health=await fetch(url+'/api/v1/health');assert.equal(health.status,200);checks.liveHealth=200;
+ const anon=await fetch(url+'/api/v1/admin/contents');assert.equal(anon.status,401);checks.anonymousAdminDenied=401;
+ const login=await fetch(url+'/api/v1/auth/login',{method:'POST',headers:{Origin:config.origin,'Content-Type':'application/json'},body:JSON.stringify({username,password})});assert.equal(login.status,200);const cookie=login.headers.get('set-cookie')!.split(';')[0];const body=await login.json() as any;
+ const wrong=await fetch(url+'/api/v1/auth/logout',{method:'POST',headers:{Cookie:cookie,Origin:config.origin,'Content-Type':'application/json'},body:'{}'});assert.equal(wrong.status,403);checks.csrfDenied=403;
+ await stop();await start();
+ const restored=await fetch(url+'/api/v1/auth/session',{headers:{Cookie:cookie}});assert.equal(restored.status,200);assert.equal((await restored.json() as any).data.admin.username,username);checks.sessionSurvivesProcessRestart=true;
+ const read=createContext(config);assert.deepEqual(JSON.parse(read.db.get<{data_json:string}>('SELECT data_json FROM contents WHERE id=?',id)!.data_json),record);read.db.close();checks.syntheticRecordSurvivesProcessRestart=true;
+ const out=await fetch(url+'/api/v1/auth/logout',{method:'POST',headers:{Cookie:cookie,Origin:config.origin,'Content-Type':'application/json','X-CSRF-Token':body.data.csrfToken},body:'{}'});assert.equal(out.status,200);assert.equal((await fetch(url+'/api/v1/auth/session',{headers:{Cookie:cookie}})).status,401);checks.logoutReplayDenied=401;
+ const evidence=path.join(config.root,'协作管理/验证证据/E01');fs.mkdirSync(evidence,{recursive:true});fs.writeFileSync(path.join(evidence,'process-restart.json'),JSON.stringify({at:new Date().toISOString(),environment:env,synthetic:true,contentId:id,checks,scope:'Foundation only; record inserted by isolated test harness, not content API'},null,2));console.log(JSON.stringify(checks));
+}finally{await stop();}
