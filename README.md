@@ -138,9 +138,9 @@ docs/       通用部署说明
 
 ## GitHub 仓库与后续更新
 
-源码仓库：[liangyue520/liangyanghao-ai-site](https://github.com/liangyue520/liangyanghao-ai-site)。仓库为私有，只有所有者及已获授权的协作者能够访问源码和截图。
+源码仓库：[liangyue520/liangyanghao-ai-site](https://github.com/liangyue520/liangyanghao-ai-site)。仓库已公开，任何人都可以查看源码和界面截图。
 
-已获授权的协作者可使用 GitHub CLI 克隆：
+可以使用 GitHub CLI 克隆：
 
 ```sh
 gh repo clone liangyue520/liangyanghao-ai-site
